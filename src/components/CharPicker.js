@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import './CharPicker.css';
 
@@ -6,10 +6,9 @@ const CharPicker = props => {
   const [loadedChars, setLoadedChars] = useState([]);
   const [isLoading, setIsLoading] = useState(false);  
 
-
-
-  componentDidMount() {
-    this.setState({ isLoading: true });
+  useEffect(() => {
+    console.log('UseEffect runs');
+   setIsLoading(true);
     fetch('https://swapi.co/api/people')
       .then(response => {
         if (!response.ok) {
@@ -19,27 +18,28 @@ const CharPicker = props => {
       })
       .then(charData => {
         const selectedCharacters = charData.results.slice(0, 5);
-        this.setState({
-          characters: selectedCharacters.map((char, index) => ({
+          
+          setIsLoading(false);
+          setLoadedChars(selectedCharacters.map((char, index) => ({
             name: char.name,
             id: index + 1
-          })),
-          isLoading: false
-        });
+          }))
+        );
+        
       })
       .catch(err => {
         console.log(err);
+        setIsLoading(false);
       });
-  }
+  }, []); 
 
-  render() {
+  //  componentDidMount() {
+  // } 
+
+
     let content = <p>Loading characters...</p>;
 
-    if (
-      isLoading &&
-      loadedChars &&
-      loadedChars.length > 0
-    ) {
+    if (!isLoading && loadedChars && loadedChars.length > 0) {
       content = (
         <select
           onChange={props.onCharSelect}
@@ -61,6 +61,6 @@ const CharPicker = props => {
     }
     return content;
   }
-}
+
 
 export default CharPicker;
